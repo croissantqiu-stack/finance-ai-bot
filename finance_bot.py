@@ -16,28 +16,25 @@ if not TOKEN:
 
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1cHKMzUicBHky3Hf-08y2ZnyLOVGTwIgmo4SlE3eXfRo/edit"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CRED_PATH = os.path.join(BASE_DIR, "credentials")
-
-if not os.path.exists(CRED_PATH):
-    raise FileNotFoundError("❌ credentials tidak ditemukan!")
-
-TEMP_DIR = os.path.join(BASE_DIR, "temp")
-os.makedirs(TEMP_DIR, exist_ok=True)
-
-if os.name == "nt":
-    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-else:
-    pytesseract.pytesseract.tesseract_cmd = "tesseract"
+import json
 
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
 ]
 
-creds = ServiceAccountCredentials.from_json_keyfile_name(CRED_PATH, scope)
+creds_dict = json.loads(os.getenv("credentials"))
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+
 client_gsheet = gspread.authorize(creds)
 sheet = client_gsheet.open_by_url(SHEET_URL).sheet1
+
+TEMP_DIR = "temp"
+os.makedirs(TEMP_DIR, exist_ok=True)
+if os.name == "nt":
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+else:
+    pytesseract.pytesseract.tesseract_cmd = "tesseract"
 
 print("✅ SHEETS CONNECTED")
 
