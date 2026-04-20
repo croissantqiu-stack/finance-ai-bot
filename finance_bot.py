@@ -9,7 +9,7 @@ from datetime import datetime
 import os
 
 print("🔥 BOT START 🔥")
-
+print("ENV CHECK:", os.getenv("DISCORD_TOKEN"))
 TOKEN = os.getenv("DISCORD_TOKEN")
 if not TOKEN:
     raise ValueError("❌ DISCORD_TOKEN tidak ditemukan!")
