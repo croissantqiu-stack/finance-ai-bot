@@ -1,0 +1,6 @@
+discord.py
+gspread
+oauth2client
+pytesseract
+pillow
+requests
