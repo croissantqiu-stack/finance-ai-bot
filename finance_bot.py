@@ -3,6 +3,7 @@ import re
 import gspread
 import pytesseract
 import requests
+import json
 from PIL import Image
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
@@ -17,11 +18,6 @@ if not TOKEN:
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1cHKMzUicBHky3Hf-08y2ZnyLOVGTwIgmo4SlE3eXfRo/edit"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CRED_PATH = os.path.join(BASE_DIR, "credentials.json")
-
-if not os.path.exists(CRED_PATH):
-    raise FileNotFoundError("❌ credentials.json tidak ditemukan!")
-
 TEMP_DIR = os.path.join(BASE_DIR, "temp")
 os.makedirs(TEMP_DIR, exist_ok=True)
 
@@ -35,7 +31,17 @@ scope = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-creds = ServiceAccountCredentials.from_json_keyfile_name(CRED_PATH, scope)
+# Load credentials dari environment variable GOOGLE_CREDENTIALS
+GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
+if not GOOGLE_CREDENTIALS:
+    raise ValueError("❌ GOOGLE_CREDENTIALS tidak ditemukan!")
+
+try:
+    creds_dict = json.loads(GOOGLE_CREDENTIALS)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+except json.JSONDecodeError:
+    raise ValueError("❌ GOOGLE_CREDENTIALS bukan JSON yang valid!")
+
 client_gsheet = gspread.authorize(creds)
 sheet = client_gsheet.open_by_url(SHEET_URL).sheet1
 
