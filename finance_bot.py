@@ -7,6 +7,8 @@ from PIL import Image
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 import os
+import json
+
 
 print("🔥 BOT START 🔥")
 
@@ -17,10 +19,16 @@ if not TOKEN:
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1cHKMzUicBHky3Hf-08y2ZnyLOVGTwIgmo4SlE3eXfRo/edit"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CRED_PATH = os.path.join(BASE_DIR, "credentials.json")
 
-if not os.path.exists(CRED_PATH):
-    raise FileNotFoundError("❌ credentials.json tidak ditemukan!")
+_google_creds_json = os.getenv("GOOGLE_CREDENTIALS")
+if not _google_creds_json:
+    raise ValueError("❌ GOOGLE_CREDENTIALS tidak ditemukan! Set environment variable di Railway.")
+
+_creds_data = json.loads(_google_creds_json)
+CRED_PATH = os.path.join(BASE_DIR, "credentials.json")
+with open(CRED_PATH, "w") as _f:
+    json.dump(_creds_data, _f)
+
 
 TEMP_DIR = os.path.join(BASE_DIR, "temp")
 os.makedirs(TEMP_DIR, exist_ok=True)
